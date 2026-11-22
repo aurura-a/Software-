@@ -1,0 +1,20 @@
+$ git rev-parse --short baseline
+00263ce
+
+$ find . -path ./.git -prune -o -type f -print | sort
+./.gitignore
+./README.md
+./docs/evidence/01_baseline_structure.txt
+./expense_tracker/__init__.py
+./expense_tracker/cli.py
+./expense_tracker/tracker.py
+./tests/__init__.py
+./tests/test_tracker.py
+
+$ wc -l expense_tracker/*.py tests/*.py
+   1 expense_tracker/__init__.py
+  42 expense_tracker/cli.py
+  66 expense_tracker/tracker.py
+   0 tests/__init__.py
+  66 tests/test_tracker.py
+ 175 total

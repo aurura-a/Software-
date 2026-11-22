@@ -1,0 +1,4 @@
+--- BEFORE (tag baseline)
+tracker.py lines: 66
+format branches (fmt == ...) in tracker.py: 6
+header literal occurrences: 2

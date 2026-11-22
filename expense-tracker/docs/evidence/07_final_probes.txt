@@ -1,0 +1,16 @@
+$ PYTHONPATH=. python3 tools/probe_final.py
+--- P1 float money (NOT mitigated, residual risk R-01)
+total() = 0.30000000000000004
+--- P2 validation (mitigated R-02)
+rejected -250 'x' -> amount must be a finite number greater than 0
+rejected 0 'x' -> amount must be a finite number greater than 0
+rejected nan 'x' -> amount must be a finite number greater than 0
+rejected inf 'x' -> amount must be a finite number greater than 0
+rejected 5 '' -> category must be a non-empty string
+items stored: [] | file created: False
+--- P3 CSV comma (mitigated)
+'5,food,"lunch, with friends"' -> ['5', 'food', 'lunch, with friends']
+--- P4 CSV formula injection (mitigated R-03)
+5,food,"'=HYPERLINK(""http://evil.example"",""click"")"
+--- P5 corrupted file (NOT mitigated, open risk R-05)
+raised JSONDecodeError

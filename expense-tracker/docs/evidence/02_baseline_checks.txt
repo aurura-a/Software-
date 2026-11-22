@@ -1,0 +1,38 @@
+$ python3 --version
+Python 3.12.3
+
+$ python3 -m unittest discover -v
+test_ac1_total (tests.test_tracker.TestAcceptanceCriteria.test_ac1_total) ... ok
+test_ac2_by_category (tests.test_tracker.TestAcceptanceCriteria.test_ac2_by_category) ... ok
+test_ac3_persistence (tests.test_tracker.TestAcceptanceCriteria.test_ac3_persistence) ... ok
+test_ac4_export_writes_file (tests.test_tracker.TestAcceptanceCriteria.test_ac4_export_writes_file) ... ok
+test_ac4_report_text_csv_json (tests.test_tracker.TestAcceptanceCriteria.test_ac4_report_text_csv_json) ... ok
+test_ac4_unknown_format (tests.test_tracker.TestAcceptanceCriteria.test_ac4_unknown_format) ... ok
+test_ac5_cli_exit_codes (tests.test_tracker.TestAcceptanceCriteria.test_ac5_cli_exit_codes) ... added
+ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.005s
+
+OK
+exit=0
+
+$ python3 -m compileall -q expense_tracker tests
+exit=0
+
+$ python3 -m pytest --version
+/usr/bin/python3: No module named pytest
+$ python3 -m ruff --version
+/usr/bin/python3: No module named ruff
+$ python3 -m mypy --version
+/usr/bin/python3: No module named mypy
+$ python3 -m flake8 --version
+/usr/bin/python3: No module named flake8
+$ python3 -m pyflakes --version
+/usr/bin/python3: No module named pyflakes
+
+$ ls requirements*.txt pyproject.toml setup.cfg .github 2>&1
+ls: cannot access 'requirements*.txt': No such file or directory
+ls: cannot access 'pyproject.toml': No such file or directory
+ls: cannot access 'setup.cfg': No such file or directory
+ls: cannot access '.github': No such file or directory

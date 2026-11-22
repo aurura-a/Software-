@@ -1,0 +1,46 @@
+$ python3 -m unittest tests.test_risks   (new tests vs code BEFORE mitigation = tag after-refactor)
+First list contains 1 additional elements.
+First extra element 3:
+'b'
+
+- ['5', 'food', 'a', 'b']
+?                 - --
+
++ ['5', 'food', 'a,b']
+
+======================================================================
+FAIL: test_formula_prefixes_are_neutralised (tests.test_risks.TestR03CsvSafety.test_formula_prefixes_are_neutralised) (prefix='=')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/wt_before/tests/test_risks.py", line 73, in test_formula_prefixes_are_neutralised
+    self.assertFalse(cell.startswith(prefix), cell)
+AssertionError: True is not false : =SUM(A1:A9)
+
+======================================================================
+FAIL: test_formula_prefixes_are_neutralised (tests.test_risks.TestR03CsvSafety.test_formula_prefixes_are_neutralised) (prefix='+')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/wt_before/tests/test_risks.py", line 73, in test_formula_prefixes_are_neutralised
+    self.assertFalse(cell.startswith(prefix), cell)
+AssertionError: True is not false : +SUM(A1:A9)
+
+======================================================================
+FAIL: test_formula_prefixes_are_neutralised (tests.test_risks.TestR03CsvSafety.test_formula_prefixes_are_neutralised) (prefix='-')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/wt_before/tests/test_risks.py", line 73, in test_formula_prefixes_are_neutralised
+    self.assertFalse(cell.startswith(prefix), cell)
+AssertionError: True is not false : -SUM(A1:A9)
+
+======================================================================
+FAIL: test_formula_prefixes_are_neutralised (tests.test_risks.TestR03CsvSafety.test_formula_prefixes_are_neutralised) (prefix='@')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/wt_before/tests/test_risks.py", line 73, in test_formula_prefixes_are_neutralised
+    self.assertFalse(cell.startswith(prefix), cell)
+AssertionError: True is not false : @SUM(A1:A9)
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.008s
+
+FAILED (failures=20)

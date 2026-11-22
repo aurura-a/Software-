@@ -1,0 +1,3 @@
+expense_tracker/tracker.py:10:            with open(path) as f:
+expense_tracker/tracker.py:17:        with open(self.path, "w") as f:
+expense_tracker/tracker.py:65:        with open(out_path, "w") as f:

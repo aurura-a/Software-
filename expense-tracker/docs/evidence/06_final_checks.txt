@@ -1,0 +1,35 @@
+$ python3 -m unittest discover -v   (FINAL, branch main)
+test_cli_invalid_amount_exit_code (tests.test_risks.TestR02Validation.test_cli_invalid_amount_exit_code) ... ok
+test_cli_nan_amount_rejected (tests.test_risks.TestR02Validation.test_cli_nan_amount_rejected) ... ok
+test_rejected_add_changes_nothing (tests.test_risks.TestR02Validation.test_rejected_add_changes_nothing) ... ok
+test_rejects_bad_amounts (tests.test_risks.TestR02Validation.test_rejects_bad_amounts) ... ok
+test_rejects_blank_category (tests.test_risks.TestR02Validation.test_rejects_blank_category) ... ok
+test_valid_add_still_works (tests.test_risks.TestR02Validation.test_valid_add_still_works) ... ok
+test_category_is_neutralised_too (tests.test_risks.TestR03CsvSafety.test_category_is_neutralised_too) ... ok
+test_comma_in_description_stays_one_cell (tests.test_risks.TestR03CsvSafety.test_comma_in_description_stays_one_cell) ... ok
+test_export_file_matches_report (tests.test_risks.TestR03CsvSafety.test_export_file_matches_report) ... ok
+test_formula_prefixes_are_neutralised (tests.test_risks.TestR03CsvSafety.test_formula_prefixes_are_neutralised) ... ok
+test_plain_text_unchanged (tests.test_risks.TestR03CsvSafety.test_plain_text_unchanged) ... ok
+test_ac1_total (tests.test_tracker.TestAcceptanceCriteria.test_ac1_total) ... ok
+test_ac2_by_category (tests.test_tracker.TestAcceptanceCriteria.test_ac2_by_category) ... ok
+test_ac3_persistence (tests.test_tracker.TestAcceptanceCriteria.test_ac3_persistence) ... ok
+test_ac4_export_writes_file (tests.test_tracker.TestAcceptanceCriteria.test_ac4_export_writes_file) ... ok
+test_ac4_report_text_csv_json (tests.test_tracker.TestAcceptanceCriteria.test_ac4_report_text_csv_json) ... ok
+test_ac4_unknown_format (tests.test_tracker.TestAcceptanceCriteria.test_ac4_unknown_format) ... ok
+test_ac5_cli_exit_codes (tests.test_tracker.TestAcceptanceCriteria.test_ac5_cli_exit_codes) ... added
+ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.015s
+
+OK
+
+$ python3 -m compileall -q expense_tracker tests
+exit=0
+
+$ python3 tools/simple_lint.py
+simple_lint: 0 problem(s)
+exit=0
+
+$ git diff baseline HEAD -- tests/test_tracker.py
+(empty: tests/test_tracker.py IDENTICAL to baseline, acceptance tests untouched)

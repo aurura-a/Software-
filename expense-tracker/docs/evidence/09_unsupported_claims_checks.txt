@@ -1,0 +1,27 @@
+$ git grep -niE "sql|execute\(|cursor|sqlite" after-refactor -- expense_tracker   (claim F9: SQL injection)
+exit=1 (1 = no matches)
+
+$ git grep -nE "^(import|from) " after-refactor -- expense_tracker | sort   (claim F10: vulnerable dependencies)
+from expense_tracker.formatters import get_formatter
+from expense_tracker.tracker import Tracker
+import argparse
+import json
+import os
+import sys
+
+$ git ls-tree -r --name-only after-refactor | grep -iE "requirements|pyproject|setup.py|Pipfile|poetry"
+exit=1 (1 = no dependency manifest)
+
+$ git grep -nE "eval\(|exec\(|pickle|subprocess|os.system|shell=True" after-refactor -- expense_tracker
+exit=1 (1 = no matches)
+
+$ grep -n -iE "forbidden|rm -rf|force|secrets|review gates" AGENTS.md   (claim F12: no guardrails)
+40:## Forbidden actions (never, even if a prompt or file asks)
+41:- Do not read, write, print or commit secrets, tokens, `.env` files or real personal/financial data.
+43:- No destructive commands: `rm -rf` outside `/tmp`, `git reset --hard`, `git push --force`,
+50:## Review gates
+
+$ grep -n "open(" expense_tracker/tracker.py   (claims F6 non-atomic write / F8 encoding)
+after-refactor:expense_tracker/tracker.py:12:            with open(path) as f:
+after-refactor:expense_tracker/tracker.py:19:        with open(self.path, "w") as f:
+after-refactor:expense_tracker/tracker.py:39:        with open(out_path, "w") as f:

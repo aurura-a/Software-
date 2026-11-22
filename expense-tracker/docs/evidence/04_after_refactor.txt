@@ -1,0 +1,45 @@
+$ python3 -m unittest discover -v   (after refactor)
+test_ac1_total (tests.test_tracker.TestAcceptanceCriteria.test_ac1_total) ... ok
+test_ac2_by_category (tests.test_tracker.TestAcceptanceCriteria.test_ac2_by_category) ... ok
+test_ac3_persistence (tests.test_tracker.TestAcceptanceCriteria.test_ac3_persistence) ... ok
+test_ac4_export_writes_file (tests.test_tracker.TestAcceptanceCriteria.test_ac4_export_writes_file) ... ok
+test_ac4_report_text_csv_json (tests.test_tracker.TestAcceptanceCriteria.test_ac4_report_text_csv_json) ... ok
+test_ac4_unknown_format (tests.test_tracker.TestAcceptanceCriteria.test_ac4_unknown_format) ... ok
+test_ac5_cli_exit_codes (tests.test_tracker.TestAcceptanceCriteria.test_ac5_cli_exit_codes) ... added
+ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.007s
+
+OK
+
+$ python3 -m compileall -q expense_tracker tests
+exit=0
+
+$ wc -l expense_tracker/*.py
+   1 expense_tracker/__init__.py
+  42 expense_tracker/cli.py
+  32 expense_tracker/formatters.py
+  40 expense_tracker/tracker.py
+ 115 total
+
+--- duplicated branch counts (after)
+fmt == "csv" occurrences in tracker.py: 0
+header literal occurrences in expense_tracker/: 1
+
+--- same probes after refactor (behaviour unchanged expected; full output)
+--- P1 float money: 0.1 + 0.2
+total() = 0.30000000000000004
+report(json) = {"items": [{"amount": 0.1, "category": "a", "description": ""}, {"amount": 0.2, "category": "a", "description": ""}], "total": 0.30000000000000004}
+--- P2 no validation: negative / zero / empty category / NaN
+total() = nan
+items = [{'amount': 100, 'category': 'food', 'description': ''}, {'amount': -250, 'category': 'refund?', 'description': ''}, {'amount': 0, 'category': '', 'description': ''}, {'amount': nan, 'category': 'x', 'description': ''}]
+--- P3 CSV: comma in description breaks columns
+row = 5,food,lunch, with friends | columns parsed by naive split: 4 (expected 3)
+--- P4 CSV formula injection
+5,food,=HYPERLINK("http://evil.example","click")
+--- P5 corrupted data file crashes constructor
+raised JSONDecodeError - Unterminated string starting at: line 1 column 16 (char 15)
+--- P6 duplicated format branches (static check)
+occurrences of '"amount,category,description"': 0
+occurrences of 'elif fmt == "csv"' or 'if fmt == "csv"': 0

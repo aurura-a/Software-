@@ -1,0 +1,28 @@
+$ CLI smoke test (final code)
+$ python3 -m expense_tracker.cli --file demo.json add 12.5 food --desc lunch
+added
+exit=0
+$ python3 -m expense_tracker.cli --file demo.json add -5 food
+error: amount must be a finite number greater than 0
+exit=2
+$ python3 -m expense_tracker.cli --file demo.json add nan food
+error: amount must be a finite number greater than 0
+exit=2
+$ python3 -m expense_tracker.cli --file demo.json add 3 bus --desc =1+1
+added
+exit=0
+$ python3 -m expense_tracker.cli --file demo.json total
+15.5
+exit=0
+$ python3 -m expense_tracker.cli --file demo.json categories
+food: 12.5
+bus: 3.0
+exit=0
+$ python3 -m expense_tracker.cli --file demo.json report --format csv
+amount,category,description
+12.5,food,lunch
+3.0,bus,'=1+1
+exit=0
+$ python3 -m expense_tracker.cli --file demo.json export json /tmp/tmp.P0SJ4tT5jP/o.json
+exported
+exit=0

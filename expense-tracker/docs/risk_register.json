@@ -1,0 +1,238 @@
+{
+  "risks": [
+    {
+      "id": "R-01",
+      "cat": "Correctness",
+      "status": "Confirmed",
+      "title": "Money stored and summed as binary floats",
+      "chain": "Cause: amounts are Python floats. Event: decimal amounts are summed. Consequence: totals such as 0.30000000000000004 appear in text/JSON reports.",
+      "comp": "Tracker.total(), formatters (text/json)",
+      "ev": "docs/evidence/03_baseline_probes.txt P1: total() = 0.30000000000000004; still present in 07_final_probes.txt P1.",
+      "L": 2,
+      "I": 2,
+      "mit": "Not implemented. Plan: store integer minor units or decimal.Decimal and round at output.",
+      "owner": "Arai (repository owner)",
+      "ver": "Unit test: add 0.1 and 0.2, expect exactly 0.30 in every format.",
+      "L2": 2,
+      "I2": 2,
+      "resid": "Open. Not touched by M1/M2 (M1 rejects NaN/inf but does not fix rounding)."
+    },
+    {
+      "id": "R-02",
+      "cat": "Correctness",
+      "status": "Confirmed",
+      "title": "No input validation in Tracker.add",
+      "chain": "Cause: add() stored any value. Event: user enters -250, 0, a blank category, or nan/inf. Consequence: wrong totals; a stored NaN makes total() NaN permanently because it is persisted in the data file.",
+      "comp": "expense_tracker/tracker.py add(); cli.py add command",
+      "ev": "03_baseline_probes.txt P2: total() = nan, negative/zero/blank items stored.",
+      "L": 3,
+      "I": 2,
+      "mit": "M1: validate amount (finite number > 0, not bool) and category (non-blank string); raise ValueError before anything is stored; CLI prints error and exits 2.",
+      "owner": "Arai (repository owner)",
+      "ver": "tests/test_risks.py::TestR02Validation (6 tests); probe P2; CLI smoke log (exit=2, no file created).",
+      "L2": 1,
+      "I2": 2,
+      "resid": "Low. Data files edited by hand, and direct writes to Tracker.items, still bypass validation. Refunds (negative amounts) are intentionally unsupported."
+    },
+    {
+      "id": "R-03",
+      "cat": "Security",
+      "status": "Confirmed (spreadsheet behaviour not executed)",
+      "title": "CSV formula injection",
+      "chain": "Cause: CSV is built by string join and user text is written verbatim. Event: a description or category starting with = + - @ is opened in a spreadsheet. Consequence: the cell can be evaluated as a formula in the recipient's spreadsheet.",
+      "comp": "formatters.format_csv (before: tracker.report/export)",
+      "ev": "03_baseline_probes.txt P4: output row 5,food,=HYPERLINK(\"http://evil.example\",\"click\"). Actual opening in Excel/LibreOffice was NOT performed.",
+      "L": 2,
+      "I": 3,
+      "mit": "M2: build CSV with the csv module and prefix ' to text cells that start with = + - @ tab or CR.",
+      "owner": "Arai (repository owner)",
+      "ver": "tests/test_risks.py::TestR03CsvSafety (5 tests, 4 prefix subtests); probe P4 shows leading '.",
+      "L2": 1,
+      "I2": 3,
+      "resid": "Low-medium. The apostrophe convention was verified only at text level, not in a real spreadsheet; legitimate text starting with these characters gains a visible quote."
+    },
+    {
+      "id": "R-04",
+      "cat": "Correctness",
+      "status": "Confirmed",
+      "title": "CSV breaks when text contains commas or quotes",
+      "chain": "Cause: manual '%s,%s,%s' join without quoting. Event: description such as 'lunch, with friends'. Consequence: rows parse into 4 columns instead of 3.",
+      "comp": "formatters.format_csv (before: tracker.report/export)",
+      "ev": "03_baseline_probes.txt P3: 4 columns parsed, 3 expected.",
+      "L": 3,
+      "I": 2,
+      "mit": "Fixed as a side effect of M2 (csv.writer quoting). Not counted as one of the two required mitigations.",
+      "owner": "Arai (repository owner)",
+      "ver": "test_comma_in_description_stays_one_cell, test_export_file_matches_report; probe P3.",
+      "L2": 1,
+      "I2": 2,
+      "resid": "Low."
+    },
+    {
+      "id": "R-05",
+      "cat": "Correctness",
+      "status": "Confirmed",
+      "title": "Corrupted data file crashes the program",
+      "chain": "Cause: json.load is not guarded. Event: expenses.json is truncated or hand-edited incorrectly. Consequence: every command fails with a traceback; no recovery message.",
+      "comp": "Tracker.__init__",
+      "ev": "03_baseline_probes.txt P5 and 07_final_probes.txt P5: JSONDecodeError raised.",
+      "L": 2,
+      "I": 2,
+      "mit": "Not implemented. Candidate for the background-agent task in Task 8: catch JSONDecodeError, report a clear error, leave the file untouched.",
+      "owner": "Arai (repository owner)",
+      "ver": "New test that writes a truncated file and expects a clear error and an unchanged file.",
+      "L2": 2,
+      "I2": 2,
+      "resid": "Open."
+    },
+    {
+      "id": "R-06",
+      "cat": "Correctness",
+      "status": "Plausible / unverified",
+      "title": "Non-atomic save can lose data on a crash",
+      "chain": "Cause: open(path, 'w') truncates the file before json.dump completes. Event: process killed or disk full during save. Consequence: previous data lost.",
+      "comp": "Tracker.add (tracker.py line 19)",
+      "ev": "Static only: git grep shows open(self.path, \"w\") (09_unsupported_claims_checks.txt). A crash during save was NOT simulated.",
+      "L": 1,
+      "I": 3,
+      "mit": "Not implemented. Write to a temp file and os.replace().",
+      "owner": "Arai (repository owner)",
+      "ver": "Fault-injection test (patch json.dump to raise) and check the original file is intact.",
+      "L2": 1,
+      "I2": 3,
+      "resid": "Open, unverified."
+    },
+    {
+      "id": "R-07",
+      "cat": "Agent operations",
+      "status": "Confirmed",
+      "title": "No lint, type check, CI or pinned toolchain",
+      "chain": "Cause: no pyproject/requirements/CI in the repository. Event: an agent changes code. Consequence: only unittest and compileall can catch mistakes; style/type regressions go unnoticed.",
+      "comp": "Repository root / build tooling",
+      "ev": "02_baseline_checks.txt: pytest, ruff, mypy, flake8 not installed; ls shows no pyproject.toml, requirements*.txt or .github.",
+      "L": 3,
+      "I": 1,
+      "mit": "Not implemented. A stdlib stand-in (tools/simple_lint.py) was added but is not equivalent to ruff/mypy.",
+      "owner": "Arai (repository owner)",
+      "ver": "CI workflow running unittest + a pinned linter + type checker on every push.",
+      "L2": 3,
+      "I2": 1,
+      "resid": "Open."
+    },
+    {
+      "id": "R-08",
+      "cat": "Correctness",
+      "status": "Plausible / unverified",
+      "title": "Platform-dependent file encoding",
+      "chain": "Cause: open() is called without encoding=. Event: non-ASCII category (for example Cyrillic) saved on a system whose default encoding is not UTF-8. Consequence: mojibake or UnicodeEncodeError.",
+      "comp": "Tracker.__init__, Tracker.add, Tracker.export",
+      "ev": "Static only: three open() calls without encoding (09_unsupported_claims_checks.txt). Not tested on Windows.",
+      "L": 2,
+      "I": 2,
+      "mit": "Not implemented. Pass encoding='utf-8' everywhere.",
+      "owner": "Arai (repository owner)",
+      "ver": "Run a non-ASCII round-trip test on Windows.",
+      "L2": 2,
+      "I2": 2,
+      "resid": "Open, unverified."
+    }
+  ],
+  "findings": [
+    [
+      "F1",
+      "Float arithmetic gives inexact totals",
+      "Correctness",
+      "Confirmed",
+      "P1 in 03_baseline_probes.txt",
+      "R-01"
+    ],
+    [
+      "F2",
+      "add() accepts negative, zero, blank, NaN",
+      "Correctness",
+      "Confirmed",
+      "P2: total() = nan",
+      "R-02"
+    ],
+    [
+      "F3",
+      "CSV output allows formula injection",
+      "Security",
+      "Confirmed*",
+      "P4 output row (*spreadsheet not opened)",
+      "R-03"
+    ],
+    [
+      "F4",
+      "CSV breaks on commas in text",
+      "Correctness",
+      "Confirmed",
+      "P3: 4 columns instead of 3",
+      "R-04"
+    ],
+    [
+      "F5",
+      "Corrupted JSON file crashes the CLI",
+      "Correctness",
+      "Confirmed",
+      "P5: JSONDecodeError",
+      "R-05"
+    ],
+    [
+      "F6",
+      "Non-atomic save can lose data",
+      "Correctness",
+      "Plausible / unverified",
+      "Static: open(..., 'w'); crash not simulated",
+      "R-06"
+    ],
+    [
+      "F7",
+      "No lint / type check / CI / pinned toolchain",
+      "Agent operations",
+      "Confirmed",
+      "02_baseline_checks.txt",
+      "R-07"
+    ],
+    [
+      "F8",
+      "open() without encoding is platform dependent",
+      "Correctness",
+      "Plausible / unverified",
+      "Static only; not run on Windows",
+      "R-08"
+    ],
+    [
+      "F9",
+      "SQL injection through category",
+      "Security",
+      "Unsupported",
+      "git grep for sql/execute/cursor: no matches",
+      "-"
+    ],
+    [
+      "F10",
+      "Vulnerable third-party dependencies",
+      "Dependency",
+      "Unsupported",
+      "Only argparse, csv, io, json, math, os, sys imported; no manifest",
+      "-"
+    ],
+    [
+      "F11",
+      "Path traversal through --file / export path",
+      "Security",
+      "Unsupported",
+      "CLI user picks the path with their own permissions; no service boundary",
+      "-"
+    ],
+    [
+      "F12",
+      "AGENTS.md lacks guardrails",
+      "Agent operations",
+      "Unsupported",
+      "AGENTS.md lines 40-50 contain forbidden actions and review gates (limit: text only, not technically enforced)",
+      "-"
+    ]
+  ]
+}
